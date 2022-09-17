@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-ingress
+  namespace: node-ingress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-ingress
+  template:
+    metadata:
+      labels:
+        app: node-ingress
+    spec:
+      serviceAccountName: node-ingress
+      containers:
+      - image: dockerlokeshhs/nodejs14
+        imagePullPolicy: IfNotPresent
+        name: node-ingress
+        ports:
+        - name: http
+          containerPort: 80
+        - name: https
+          containerPort: 443
+        - name: readiness-port
+          containerPort: 8081
+        readinessProbe:
+          httpGet:
+            path: /
+            port: readiness-port
+          periodSeconds: 1
+        securityContext:
+          allowPrivilegeEscalation: true
+          runAsUser: 101
